@@ -1,65 +1,36 @@
-#include <iostream>
-#include <stdexcept>
-#include <stdio.h>
-#include <string>
+#include<iostream>
+#include <string.h>
 #include <cstring>
-#include <algorithm>
-#include <iterator>
-#include "pstream.h"
+#include <fstream>
+#include <sstream>
+
 using namespace std;
-void printr(string inp)
-{
-    string prints = "echo " + inp + " > /dev/usb/lp0";
+                                   
+void printr(string inp){ //gets input string command and sends string directly to paralel0
+    string prints = "echo " + inp + " > /dev/usb/lp0";//
+    //prints = inp;//
     char command[1024];
     strcpy(command, prints.c_str());
     system(command);
 }
-string result(string cmd)
-{
-    // run a process and create a streambuf that reads its stdout and stderr
-    redi::ipstream proc(cmd, redi::pstreams::pstdout | redi::pstreams::pstderr);
-    std::string line;
-    // read child's stdout
-    string out = "";
-    while (std::getline(proc.out(), line))
-    {
-        //std::cout << "stdout: " << line << '\n';
-        out = line + " " + out;
-    }
-    //cout << out << "\n";
-    return out;
-    if (proc.eof() && proc.fail())
-        proc.clear();
-    // read child's stderr
-    while (std::getline(proc.err(), line))
-        std::cout << "stderr: " << line << '\n';
-}
-void start(){
-    string starts = "";
-    starts = result("whoami") + starts;
-    starts = "@" +starts;
-    starts = result("curl ifconfig.me") + starts;
-    starts = ":" +starts;
-    starts = result("pwd") + starts;
-    starts = "$" +starts;
-    printr(starts);
-}
-int main()
-{
-    start();
-    string inp;
-    while (true)
-    {
-        printr("$");
-        
-        //cin >> inp;
-        getline(cin,inp);
-        printr(inp);
-        string output = result(inp.c_str());
+void result(string inp){//gets input string command and sends execution to paralel0
+    string prints = inp + " > output.txt | bash";
+    char command[1024];
+    strcpy(command, prints.c_str());
+    system(command);
+    //
+    string outLoc = "\"$(cat output.txt)\"";
+    printr(outLoc);
+    //strcpy(command, prints.c_str());
+    //system(command);
 
-        //replace(output.begin(), output.end(), "\n", " ");
-        printr(result(inp));
-        //cout << result(output);
+}
+int main() {
+    string inp;
+    while (1){
+        getline(cin,inp);
+        printr(inp);//
+        //cout << inp;
+        result(inp);//
     }
-    return 0;
 }
